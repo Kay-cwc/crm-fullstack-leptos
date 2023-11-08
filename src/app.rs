@@ -47,7 +47,7 @@ fn HomePage() -> impl IntoView {
     };
     
     view! {
-        <div class="mx-2">
+        <div class="mx-2 my-4">
             <Button
                 variant=ButtonVariant::Contained // just an example only. default is contained
                 label=Signal::derive(move || "Insert New Customer".to_string())
@@ -79,7 +79,7 @@ fn HomePage() -> impl IntoView {
 #[component]
 fn FormPage() -> impl IntoView {
     view! {
-        <div class="mx-2">
+        <div class="mx-4">
             <h1>"Form Page"</h1>
         </div>
     }
