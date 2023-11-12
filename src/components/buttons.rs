@@ -4,14 +4,17 @@ use leptos::*;
 fn ContainedButton<F>(
     #[prop(into)]
     label: Signal<String>,
+    // callback fn with MouseEvent as argument
     on_click: F,
+    #[prop(default="".to_string())]
+    extend_clx: String,
 ) -> impl IntoView 
 where
     F: Fn(ev::MouseEvent) + 'static
 {
     view! {
         <button 
-            class="contained" 
+            class=format!("contained bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-2 rounded {}", extend_clx)
             on:click=on_click
         >
             {label}
@@ -34,6 +37,9 @@ pub fn Button<F>(
     on_click: F,
     #[prop(default=ButtonVariant::Contained)]
     variant: ButtonVariant,
+    // allow override the css style of the base class
+    #[prop(default="".to_string())]
+    extend_clx: String,
 ) -> impl IntoView 
 where 
     F: Fn(ev::MouseEvent) + 'static 
@@ -43,6 +49,7 @@ where
             <ContainedButton
                 label=label
                 on_click=on_click
+                extend_clx=extend_clx
             />
         },   
     }

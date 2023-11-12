@@ -38,14 +38,22 @@ fn HomePage() -> impl IntoView {
     let (new_customer, set_new_customer) = create_signal("".to_string());
 
     /* @todo should insert with name later */
+    // let insert_customer = move |_| {
+    //     if !new_customer.get().is_empty() {
+    //         // validation here. clear the input field after insert
+    //         set_customer_list.update(|c| c.push(Customer::new(c.len(), new_customer.get())));
+    //         set_new_customer.update(|_v| *_v = "".to_string());
+    //     }
+    // };
+
     let insert_customer = move |_| {
-        if !new_customer.get().is_empty() {
+        if !new_customer.with(|v| v.is_empty()) {
             // validation here. clear the input field after insert
             set_customer_list.update(|c| c.push(Customer::new(c.len(), new_customer.get())));
             set_new_customer.update(|_v| *_v = "".to_string());
         }
     };
-    
+
     view! {
         <div class="mx-2 my-4">
             <Button
@@ -63,7 +71,7 @@ fn HomePage() -> impl IntoView {
                 children=move |customer| {
                     let (count, set_count) = customer.count;
                     view! {
-                        <div>
+                        <div class="my-2">
                             <Button
                                 label=Signal::derive(move || format!("{}: {}", customer.name, count.get()))
                                 on_click=move |_| set_count.update(|n| *n += 1)

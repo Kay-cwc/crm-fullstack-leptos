@@ -10,6 +10,7 @@ pub fn TextField<F>(
 {
     view! {
         <input 
+            class="border-2 border-gray-400 rounded-md p-2"
             type="text"
             on:input=move |e| on_change(event_target_value(&e))
             prop:value=value
