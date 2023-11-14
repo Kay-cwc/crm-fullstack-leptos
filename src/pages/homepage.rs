@@ -2,7 +2,7 @@ use leptos::*;
 
 use crate::models::customer::{ Customer, CustomerForm };
 use crate::components::{
-    buttons::{ Button, ButtonVariant },
+    buttons::{ Button, ButtonVariant, ButtonType },
     input::TextField,
 };
 
@@ -43,17 +43,18 @@ where
     }
 }
 
+const DEFAULT_CUSTOMERS: [&'static str; 5] = ["Alice", "Bob", "Carol", "Dave", "Eve"];
+
 #[component]
 pub fn HomePage() -> impl IntoView {
     // STATES
 
     // map the default customers array into a data class list with nested signals
-    let default_customers = vec!["Alice", "Bob", "Carol", "Dave", "Eve"];
-    let init_customer_list = (0..default_customers.len())
+    let init_customer_list = (0..DEFAULT_CUSTOMERS.len())
         .map(|id| 
             create_signal(Customer::new(
                 id,
-                &CustomerForm { first_name: default_customers[id].to_string(), last_name: "" .to_string() },
+                &CustomerForm { first_name: DEFAULT_CUSTOMERS[id].to_string(), last_name: "" .to_string() },
             ))
         )
         .collect::<Vec<_>>();
@@ -76,8 +77,6 @@ pub fn HomePage() -> impl IntoView {
         }
     };
 
-    let is_showing = move || show_form.get() == true;
-
     let handle_cancel = move |_| {
         set_new_customer.update(|_v| *_v = CustomerForm::empty());
         set_show_form(false)
@@ -85,7 +84,7 @@ pub fn HomePage() -> impl IntoView {
 
     view! {
         <div class="mx-2 my-4">
-            {move || match is_showing() {
+            {move || match show_form.get() {
                 true => view! {
                     <InlineCustomerForm 
                         customer=new_customer
@@ -142,6 +141,13 @@ pub fn HomePage() -> impl IntoView {
                                     <Button
                                         label="Edit"
                                         on_click=start_edit
+                                    />
+                                    <Button
+                                        button_type=ButtonType::Warning
+                                        label="Delete"
+                                        // NOTE: the remain method is like filter. 
+                                        // but instead of returning the filtered list, it takes a mutable ref to the original list
+                                        on_click=move |_| set_customer_list.update(|c_list| c_list.retain(|&(c, _)| c.get().id != customer.get().id ))
                                     />
                                 }.into_view()
                             }}

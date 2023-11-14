@@ -6,6 +6,7 @@ use crate::utils::common::classnames;
 fn ContainedButton<F>(
     #[prop(into)]
     label: MaybeSignal<String>,
+    button_type: ButtonType,
     // callback fn with MouseEvent as argument
     on_click: F,
     #[prop(default="".to_string())]
@@ -14,9 +15,15 @@ fn ContainedButton<F>(
 where
     F: Fn(ev::MouseEvent) + 'static
 {
+    let button_base_clx = "text-white font-bold py-2 px-4 mx-2 rounded transition".to_string();
+    let button_type_clx = match button_type {
+        ButtonType::Standard => "bg-blue-500 hover:bg-blue-700 ".to_string(),
+        ButtonType::Warning => "bg-red-500 hover:bg-red-700 ".to_string(),
+    }.to_string();
+
     view! {
         <button 
-            class=classnames(["contained bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-2 rounded transition".to_string(), extend_clx].to_vec())
+            class=classnames([button_base_clx, button_type_clx, extend_clx].to_vec())
             on:click=on_click
         >
             {label}
@@ -51,6 +58,11 @@ pub enum ButtonVariant {
     Outlined,
 }
 
+pub enum ButtonType {
+    Standard,
+    Warning,
+}
+
 /**
  * a match-cased button component
  * @todo add more variants
@@ -63,6 +75,8 @@ pub fn Button<F>(
     on_click: F,
     #[prop(default=ButtonVariant::Contained)]
     variant: ButtonVariant,
+    #[prop(default=ButtonType::Standard)]
+    button_type: ButtonType,
     // allow override the css style of the base class
     #[prop(default="".to_string())]
     extend_clx: String,
@@ -75,6 +89,7 @@ where
             <ContainedButton
                 label=label
                 on_click=on_click
+                button_type=button_type
                 extend_clx=extend_clx
             />
         },
