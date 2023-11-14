@@ -8,6 +8,7 @@ struct BtnStyle {
     button_type: ButtonType,
     variant: ButtonVariant,
     min_width: bool,
+    disabled: bool,
 }
 
 impl BtnStyle {
@@ -33,6 +34,11 @@ impl BtnStyle {
             false => (),
         }
 
+        match self.disabled {
+            true => variant_style.push("opacity-50 cursor-not-allowed".to_string()),
+            false => (),
+        }
+
         class_list.append(&mut variant_style);
         class_list.push(extra_clx);
 
@@ -45,6 +51,8 @@ fn ContainedButton<F>(
     #[prop(into)]
     label: MaybeSignal<String>,
     button_type: ButtonType,
+    #[prop(into)]
+    disabled: MaybeSignal<bool>,
     // callback fn with MouseEvent as argument
     on_click: F,
     #[prop(default="".to_string())]
@@ -53,15 +61,27 @@ fn ContainedButton<F>(
 where
     F: Fn(ev::MouseEvent) + 'static
 {
-    let class_list = BtnStyle {
-        button_type,
+    // let class_list = move |_| create_memo(
+    //     BtnStyle {
+    //         button_type,
+    //         variant: ButtonVariant::Contained,
+    //         min_width: true,
+    //         disabled: disabled.get(),
+    //     }.get_clx(extend_clx)
+    // );
+
+    let class_list = create_memo(move |_| BtnStyle{
+        button_type: button_type.clone(),
         variant: ButtonVariant::Contained,
         min_width: true,
-    }.get_clx(extend_clx);
+        disabled: disabled.get(),
+    }.get_clx(extend_clx.clone()));
+
+    let class = move || classnames(class_list.get());
 
     view! {
         <button 
-            class=classnames(class_list)
+            class=class
             on:click=on_click
         >
             {label}
@@ -86,6 +106,7 @@ where
         button_type,
         variant: ButtonVariant::Outlined,
         min_width: true,
+        disabled: false,
     }.get_clx(extend_clx);
 
     view! {
@@ -98,29 +119,31 @@ where
     }
 }
 
+#[derive(Clone)]
 pub enum ButtonVariant {
     Contained,
     Outlined,
 }
 
+#[derive(Clone)]
 pub enum ButtonType {
     Standard,
     Warning,
 }
 
-/**
- * a match-cased button component
- */
+// a match-cased button component
 #[component]
 pub fn Button<F>(
     // when you dont want a signal
     #[prop(into)]
     label: MaybeSignal<String>,
     on_click: F,
-    #[prop(default=ButtonVariant::Contained)]
+    #[prop(default = ButtonVariant::Contained)]
     variant: ButtonVariant,
-    #[prop(default=ButtonType::Standard)]
+    #[prop(default = ButtonType::Standard)]
     button_type: ButtonType,
+    #[prop(into, default = Signal::derive(move || false).into())]
+    disabled: MaybeSignal<bool>,
     // allow override the css style of the base class
     #[prop(default="".to_string())]
     extend_clx: String,
@@ -128,11 +151,18 @@ pub fn Button<F>(
 where 
     F: Fn(ev::MouseEvent) + 'static 
 {
+    // override on_click fn if disabled = true
+    let on_click_override = move |e| match disabled.get() {
+        true => return,
+        false => on_click(e),   
+    };
+
     match variant {
         ButtonVariant::Contained => view! {
             <ContainedButton
                 label=label
-                on_click=on_click
+                on_click=on_click_override
+                disabled=disabled
                 button_type=button_type
                 extend_clx=extend_clx
             />
@@ -140,7 +170,7 @@ where
         ButtonVariant::Outlined => view! {
             <OutlinedButton
                 label=label
-                on_click=on_click
+                on_click=on_click_override
                 button_type=button_type
                 extend_clx=extend_clx
             />
