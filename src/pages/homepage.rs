@@ -85,26 +85,22 @@ pub fn HomePage() -> impl IntoView {
 
     view! {
         <div class="mx-2 my-4">
-            <Show 
-                when=is_showing
-                fallback=|| view! { <span></span> }
-            >
-                <InlineCustomerForm 
-                    customer=new_customer
-                    set_customer=set_new_customer
-                    on_confirm=insert_customer
-                    on_cancel=handle_cancel
-                />
-            </Show>
-            <Show
-                when=move || !is_showing()
-                fallback=|| view! { <span></span> } 
-            >
-                <Button 
-                    label="Add".to_string()
-                    on_click=move |_| set_show_form(true)
-                />
-            </Show>
+            {move || match is_showing() {
+                true => view! {
+                    <InlineCustomerForm 
+                        customer=new_customer
+                        set_customer=set_new_customer
+                        on_confirm=insert_customer
+                        on_cancel=handle_cancel
+                    />
+                }.into_view(),
+                false => view! { 
+                    <Button 
+                        label="Add".to_string()
+                        on_click=move |_| set_show_form(true)
+                    />
+                }
+            }}
             <For 
                 each=move || customer_list.get()
                 key=|(customer, _)| customer.get().id // the id
@@ -153,18 +149,6 @@ pub fn HomePage() -> impl IntoView {
                     }
                 }
             />
-            // <For 
-            //     each=move || customer_list.get()
-            //     key=|(customer, _)| customer.get().id // the id
-            //     children=move |(customer, _)| {
-
-            //         view! {
-            //             <div class="my-2">
-            //                 <span>{move || format!("{} {}", customer.get().first_name, customer.get().last_name)}</span>
-            //             </div>
-            //         }
-            //     }
-            // />
         </div>
     }
 }
