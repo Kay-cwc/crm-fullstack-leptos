@@ -16,7 +16,7 @@ pub fn TextField<F>(
 {
     view! {
         <input 
-            class=classnames(["border-2 border-gray-400 rounded-md p-2".to_string(), extend_clx].to_vec())
+            class=classnames(["ring-2 ring-inset ring-gray-400 rounded-md p-2".to_string(), extend_clx].to_vec())
             type="text"
             on:input=move |e| on_change(event_target_value(&e))
             prop:value=value

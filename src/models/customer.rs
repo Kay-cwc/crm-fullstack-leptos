@@ -1,5 +1,3 @@
-use leptos::*;
-
 #[derive(Debug, Clone)]
 pub struct Customer {
     pub id: usize,
