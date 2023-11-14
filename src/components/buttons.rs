@@ -61,22 +61,12 @@ fn ContainedButton<F>(
 where
     F: Fn(ev::MouseEvent) + 'static
 {
-    // let class_list = move |_| create_memo(
-    //     BtnStyle {
-    //         button_type,
-    //         variant: ButtonVariant::Contained,
-    //         min_width: true,
-    //         disabled: disabled.get(),
-    //     }.get_clx(extend_clx)
-    // );
-
     let class_list = create_memo(move |_| BtnStyle{
         button_type: button_type.clone(),
         variant: ButtonVariant::Contained,
         min_width: true,
         disabled: disabled.get(),
     }.get_clx(extend_clx.clone()));
-
     let class = move || classnames(class_list.get());
 
     view! {
@@ -93,6 +83,8 @@ where
 fn OutlinedButton<F>(
     #[prop(into)]
     label: MaybeSignal<String>,
+    #[prop(into)]
+    disabled: MaybeSignal<bool>,
     // callback fn with MouseEvent as argument
     on_click: F,
     #[prop(default="".to_string())]
@@ -102,16 +94,17 @@ fn OutlinedButton<F>(
 where
     F: Fn(ev::MouseEvent) + 'static
 {
-    let class_list: Vec<String> = BtnStyle {
-        button_type,
+    let class_list: Memo<Vec<String>> = create_memo(move |_| BtnStyle {
+        button_type: button_type.clone(),
         variant: ButtonVariant::Outlined,
         min_width: true,
-        disabled: false,
-    }.get_clx(extend_clx);
+        disabled: disabled.get(),
+    }.get_clx(extend_clx.clone()));
+    let class = move || classnames(class_list.get());
 
     view! {
         <button 
-            class=classnames(class_list)
+            class=class
             on:click=on_click
         >
             {label}
@@ -171,6 +164,7 @@ where
             <OutlinedButton
                 label=label
                 on_click=on_click_override
+                disabled=disabled
                 button_type=button_type
                 extend_clx=extend_clx
             />

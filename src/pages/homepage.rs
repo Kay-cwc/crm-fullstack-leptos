@@ -18,6 +18,7 @@ where
     F: Fn(ev::MouseEvent) + 'static,
     H: Fn(ev::MouseEvent) + 'static
 {
+    let disable_confirm = create_memo(move |_| customer.get().first_name.is_empty() || customer.get().last_name.is_empty());
     view! {
         <TextField 
             extend_clx="mx-2".to_string()
@@ -34,6 +35,7 @@ where
         <Button 
             label="Save".to_string()
             on_click=on_confirm
+            disabled=disable_confirm
         />
         <Button 
             variant=ButtonVariant::Outlined
